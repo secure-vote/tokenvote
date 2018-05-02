@@ -38,8 +38,8 @@ Interactions with blockchain resources can be performed via the SV libraries (in
    confirmation of the transaction, at which point voting is completed.
 
 Note: encryption of ballots is optionally supported (using curve25519), in which case their ed25519 public key 
-is converted to a curve25519 pk for encryption purposes. The nonce should be set to `sha256.hmac(ballotHash, publicKey)` 
-(with the curve25519 pk). An example library supporting this is [fast-sha256-js](https://github.com/dchest/fast-sha256-js).
+is converted to a curve25519 pk for encryption purposes. ~~The nonce should be set to `sha256.hmac(ballotHash, publicKey)` 
+(with the curve25519 pk)~~ (note: that's insecure if a voter votes twice, need to get a better soln). An example library supporting this is [fast-sha256-js](https://github.com/dchest/fast-sha256-js).
 
 If encryption is required then the UI needs to pull down the pk from the voting smart contract.
 
