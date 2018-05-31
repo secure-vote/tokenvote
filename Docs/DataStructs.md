@@ -75,7 +75,6 @@ We use these as bit masks.
 * `USE_SIGNED = 2^1` - true if the ballot uses ed25519 signed identities (unused currently)
 * `USE_NO_ENC = 2^2` - true if the ballot is unencrypted
 * `USE_ENC = 2^3` - true if the ballot uses curve25519 encryption
-* `ALLOW_ETH_PROXY = 2^4` - (unimplemented) true if the ballot uses proxy submissions and ecrecover (can be used in parallel with `USE_ETH`)
 * (gap here)
 * `IS_BINDING = 2^13` - true if the ballot is binding or not
 * `IS_OFFICIAL = 2^14` - true if the ballot is official
