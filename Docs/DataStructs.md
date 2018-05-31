@@ -2,12 +2,33 @@
 
 ## Democracies
 
-## Ballots
+## Ballots and BBFarms
 
-Ballots are maintained in the `BBFarm` or Ballot Box Farm.
+Ballots are maintained in a `BBFarm` or Ballot Box Farm.
 
 Why "Farm"? Because using "backend" everywhere gets tiresome and uses more mental resources. 
 The only "farm" we have is for ballot boxes, but we have an index db backend, a payments backend, etc.
+
+### General
+
+#### `ballotId`
+
+a 256 bit integer with some special properties.
+
+BBFarms will usually start counting ballots from some offset, like 100.
+This gives us a little play to do anything with lower number ballots (something special) if we need.
+
+Only the last 48 bits (6 bytes) of the `ballotId` are reserved for _internal_ use, though.
+The 32 bits (4 bytes) immediately above that are used as a _namespace_ for the BBFarm. 
+This let's us know which BBFarm holds a ballot via a `ballotId` without doing any lookups (provided we 
+know what the namespace means).
+
+**For this reason it's important than any BBFarm uses a mask to zero out anything other than the
+last 48 bits when doing lookups.**
+
+The 176 remaining bits are unallocated.
+
+When looking up ballots, do something like `ballots[ballotId & BALLOT_ID_MASK]` or `ballots[uint48(ballotId)]`.
 
 ### Submission
 
@@ -81,3 +102,4 @@ We use these as bit masks.
 * `USE_TESTING = 2^15` - true if ballot is in testing mode (note: the Index will require this is false on production ballots)
 
 ## Votes
+
