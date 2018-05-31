@@ -44,7 +44,7 @@ BBFarm which allows us to save some gas on storage.
              particular to the index being used)
 [56 bits]  - unallocated (for future Ix use)
 [64 bits]  - unallocated
-[112 bits] - unallocated (for future ballot use)
+[96 bits]  - unallocated (for future ballot use)
 [32 bits]  - the IPFS header to use (if this is `bytes4(0)` 
              it indicates `0x00001220` (the sha256 mutlihash 
              header), and if the first 2 bytes are 0s it 
