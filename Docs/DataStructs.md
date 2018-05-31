@@ -21,8 +21,9 @@ There are 4 params submitted when creating a ballot:
 #### `specHash`
 
 this is a 32 byte sha256 hash of the Ballot spec. 
-users should be able to request the spec over IPFS by prepending 
+by defualt, users should be able to request the spec over IPFS by prepending 
 0x1220 (the multihash header for sha256) and using the `getBlock` api method.
+(See `extraData` for exceptions).
 
 #### `extraData`
 
