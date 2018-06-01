@@ -15,20 +15,18 @@ The only "farm" we have is for ballot boxes, but we have an index db backend, a 
 
 a 256 bit integer with some special properties.
 
-BBFarms will usually start counting ballots from some offset, like 100.
-This gives us a little play to do anything with lower number ballots (something special) if we need.
-
-Only the last 48 bits (6 bytes) of the `ballotId` are reserved for _internal_ use, though.
-The 32 bits (4 bytes) immediately above that are used as a _namespace_ for the BBFarm. 
-This let's us know which BBFarm holds a ballot via a `ballotId` without doing any lookups (provided we 
+The last 224 bits (28 bytes) of the `ballotId` are reserved for the internal ballotId lookup within the BBFarm.
+The first 32 bits (4 bytes) are used as a _namespace_ for the BBFarm. 
+The namespace let's us know which BBFarm holds a ballot via a `ballotId` without doing any lookups (provided we 
 know what the namespace means).
 
+Using 224 bits for the internal ballotId means we can base it off a hash securely (useful for interacting with 
+external data sources).
+
 **For this reason it's important than any BBFarm uses a mask to zero out anything other than the
-last 48 bits when doing lookups.**
+last 224 bits when doing lookups.**
 
-The 176 remaining bits are unallocated.
-
-When looking up ballots, do something like `ballots[ballotId & BALLOT_ID_MASK]` or `ballots[uint48(ballotId)]`.
+When looking up ballots, do something like `ballots[ballotId & BALLOT_ID_MASK]` or `ballots[uint224(ballotId)]`.
 
 ### Submission
 
@@ -60,17 +58,25 @@ first 8 or 16 bytes should be dedicated to pre-BBFarm stuff (that the index
 will use). An advantage of this is we can zero them before passing to the
 BBFarm which allows us to save some gas on storage.
 
+Broadly, in 8 byte chunks the allocation of extradata is: `[index][bbfarm][ballotbox][ballotbox]`.
+
+Specifically, it's broken down like:
+
 ```
 [8 bits]   - the BBFarm to use (`bbFarmId` - note this is 
              particular to the index being used)
 [56 bits]  - unallocated (for future Ix use)
-[64 bits]  - unallocated
+
+[64 bits]  - unallocated (for BBFarm use)
+
 [96 bits]  - unallocated (for future ballot use)
 [32 bits]  - the IPFS header to use (if this is `bytes4(0)` 
              it indicates `0x00001220` (the sha256 mutlihash 
              header), and if the first 2 bytes are 0s it 
              indicates a CIDv0 where the header is only 2 bytes). 
 ```
+
+Thus, the index takes a `bytes32 extraData` and passes a `bytes24` to the BBFarm, which passes a `bytes16` to the ballot itself.
 
 #### `packed`
 
@@ -103,3 +109,27 @@ We use these as bit masks.
 
 ## Votes
 
+### Using `submitVote(uint ballotId, bytes32 vote, bytes extra)`
+
+// todo
+
+### Using `submitProxyVote(bytes32[5] proxyReq, bytes extra)`
+
+This method allows someone to submit a vote on a voter's behalf. A good usecase is fee-free voting, or voting in cases where voters don't have ETH themselves to pay for tx fees.
+
+the `extra` param is used as in `submitVote`
+
+`proxyReq` is broken down as below:
+
+```
+proxyReq[0] - the `r` param of the signature
+proxyReq[1] - the `s` param of the signature
+proxyReq[2] - packed data, see below
+proxyReq[3] - the ballotId (as bytes32)
+proxyReq[4] - the vote (as in `submitVote`)
+
+proxyReq[2] is packed data as below:
+  [8 bits] - the `v` param for ecrecover (first byte)
+  [216 bits] - unallocated - expected 0s
+  [32 bits] - a sequence number (last 4 bytes)
+```
