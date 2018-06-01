@@ -2,11 +2,28 @@
 
 ## Democracies
 
+### General
+
+#### `democHash`
+
+The `democHash` is a bytes32 which uniquely identifies a democracy.
+
+You can find it's calculation in the smart contract repository within the `SVIndexBackend` contract (which, at the moment, lives in `SVLightIndex.sol`).
+
+#### `democPrefix`
+
+The first 13 bytes of the `democHash`.
+
+You can use `<democPrefix>.tokenvote.eth` to lookup details of the democracy.
+
+####
+
+
 ## Ballots and BBFarms
 
 Ballots are maintained in a `BBFarm` or Ballot Box Farm.
 
-Why "Farm"? Because using "backend" everywhere gets tiresome and uses more mental resources. 
+Why "Farm"? Because using "backend" everywhere gets tiresome and uses more mental resources.
 The only "farm" we have is for ballot boxes, but we have an index db backend, a payments backend, etc.
 
 ### General
@@ -16,11 +33,11 @@ The only "farm" we have is for ballot boxes, but we have an index db backend, a 
 a 256 bit integer with some special properties.
 
 The last 224 bits (28 bytes) of the `ballotId` are reserved for the internal ballotId lookup within the BBFarm.
-The first 32 bits (4 bytes) are used as a _namespace_ for the BBFarm. 
-The namespace let's us know which BBFarm holds a ballot via a `ballotId` without doing any lookups (provided we 
+The first 32 bits (4 bytes) are used as a _namespace_ for the BBFarm.
+The namespace let's us know which BBFarm holds a ballot via a `ballotId` without doing any lookups (provided we
 know what the namespace means).
 
-Using 224 bits for the internal ballotId means we can base it off a hash securely (useful for interacting with 
+Using 224 bits for the internal ballotId means we can base it off a hash securely (useful for interacting with
 external data sources).
 
 **For this reason it's important than any BBFarm uses a mask to zero out anything other than the
@@ -39,8 +56,8 @@ There are 4 params submitted when creating a ballot:
 
 #### `specHash`
 
-this is a 32 byte sha256 hash of the Ballot spec. 
-by defualt, users should be able to request the spec over IPFS by prepending 
+this is a 32 byte sha256 hash of the Ballot spec.
+by defualt, users should be able to request the spec over IPFS by prepending
 0x1220 (the multihash header for sha256) and using the `getBlock` api method.
 (See `extraData` for exceptions).
 
@@ -52,9 +69,9 @@ An early use we've identified is that the first byte will indicate the
 particular `BBFarm` to use. This allows us to upgrade to new BBFarms over
 time.
 
-At least the first byte is dedicated to routing in the index (so the BBFarm 
-doesn't need this info). My feeling at this stage is that something like the 
-first 8 or 16 bytes should be dedicated to pre-BBFarm stuff (that the index 
+At least the first byte is dedicated to routing in the index (so the BBFarm
+doesn't need this info). My feeling at this stage is that something like the
+first 8 or 16 bytes should be dedicated to pre-BBFarm stuff (that the index
 will use). An advantage of this is we can zero them before passing to the
 BBFarm which allows us to save some gas on storage.
 
@@ -63,17 +80,17 @@ Broadly, in 8 byte chunks the allocation of extradata is: `[index][bbfarm][ballo
 Specifically, it's broken down like:
 
 ```
-[8 bits]   - the BBFarm to use (`bbFarmId` - note this is 
+[8 bits]   - the BBFarm to use (`bbFarmId` - note this is
              particular to the index being used)
 [56 bits]  - unallocated (for future Ix use)
 
 [64 bits]  - unallocated (for BBFarm use)
 
 [96 bits]  - unallocated (for future ballot use)
-[32 bits]  - the IPFS header to use (if this is `bytes4(0)` 
-             it indicates `0x00001220` (the sha256 mutlihash 
-             header), and if the first 2 bytes are 0s it 
-             indicates a CIDv0 where the header is only 2 bytes). 
+[32 bits]  - the IPFS header to use (if this is `bytes4(0)`
+             it indicates `0x00001220` (the sha256 mutlihash
+             header), and if the first 2 bytes are 0s it
+             indicates a CIDv0 where the header is only 2 bytes).
 ```
 
 Thus, the index takes a `bytes32 extraData` and passes a `bytes24` to the BBFarm, which passes a `bytes16` to the ballot itself.
@@ -86,7 +103,7 @@ It's structure is:
 
 ```
 [112 bits] - currently unused
-[16 bits]  - the `submissionBits` (flags describing 
+[16 bits]  - the `submissionBits` (flags describing
              properties of the ballot, explained below)
 [64 bits]  - the `startTime` of the ballot (seconds epoch)
 [64 bits]  - the `endTime` of the ballot (seconds epoch)
@@ -94,7 +111,7 @@ It's structure is:
 
 #### `submissionBits`
 
-There are many flags stored in `submissionBits`. 
+There are many flags stored in `submissionBits`.
 Currently only a few flags have been allocated.
 We use these as bit masks.
 
@@ -111,7 +128,14 @@ We use these as bit masks.
 
 ### Using `submitVote(uint ballotId, bytes32 vote, bytes extra)`
 
-// todo
+The `ballotId` is the reference as above.
+
+The `vote` parameter is an arbitrary bytes32 which contains a serialized vote, or an encrypted serialized vote.
+
+In the case of an encrypted vote, or any protocol extending on simple votes, the `extra` param is used.
+Exactly how the `extra` param is broken up depends on the ballotSpec used (both version and properties like whether a publicKey is specified, etc).
+In the case of simple encryption (with curve25519), the `extra` param is the public key used for the encryption.
+(Note: the nonce is generated from the sha256 hash of the public key, since these keys are ephemeral and only needed once)
 
 ### Using `submitProxyVote(bytes32[5] proxyReq, bytes extra)`
 
