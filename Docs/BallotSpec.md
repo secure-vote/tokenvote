@@ -1,13 +1,35 @@
 # Ballot Specification
 
+## V2
+
+```
+{
+  "ballotVersion": 2,
+  "ballotInner": {
+    "ballotTitle": "Title",
+    "shortDesc": "short",
+    "longDesc": "long",
+    "subgroup": null,
+    "discussionLink": null,
+    "encryptionPK": null
+  },
+  "optionsVersion": 3,
+  "optionsInner": {
+    "options": null,
+    "aux": null
+  }
+}
+```
+
 ## Changelog
 
 ### v1 -> v2
 
 - [x] start and end times no longer included in ballot spec - stored in smart contract instead (avoid's ambiguiety)
-- [x] new ballot box SC mode: unencrypted but includes pubkey (useful for signing, etc) - note, might be better to use 0x0 privkey for curve25519 and detect that way
-  * ballot modes are now: unencrypted (using Eth addresses), encrypted (using Eth addresses), unencrypted using SV ID, encrypted using SV ID
-- [x] Ix (index) has `function getVersion() external constant returns (uint256)` - returns 2 for version 2, errors on v1
+- [x] remove binding prop
+- [x] subgroup is `null` for the moment, will be populated later
+- [x] options moved to root from inside ballotInner (only valid on ballotVersion >= 2)
+- [x] `aux` added to optionsInner that will later house props like `quorum` or other specific requirements
 
 ## Index v2
 
@@ -33,11 +55,3 @@ The Ix tracks democracies, and for each democ:
 Ballot SCs now take a `uint256 packed` parameter. It's a composition of several smaller parameters and has the following layout:
 
 `[112 bits - unused][16 bits - submissionBits][64 bits - startTime][64 bits - end Time]`
-
-## Ballot Spec v2
-
-```
-{
-
-}
-```
