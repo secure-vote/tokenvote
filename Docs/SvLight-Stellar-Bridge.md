@@ -108,6 +108,7 @@ This is still a draft, but the Vue component will be used similarly to:
         <SvLightVotingUI
             :ethSK="ethSK"
             :stellarPK="stellarPK"
+            :tokenID="tokenID"
             :signResponses="signResponseMap"
             signReqEvent="signRequest"
             @signRequest="onSignRequest"
