@@ -1,2 +1,3 @@
 # tokenvote
-Meta-repo for tracking tokenvote progress / milestones / etc
+
+Mostly a placeholder for docs atm - whole thing is WIP

@@ -1,4 +1,4 @@
-# Delegation
+# Delegation (Note: out of date)
 
 Delegation is managed via a smart contract - currently only delegation to Eth addresses are possible.
 

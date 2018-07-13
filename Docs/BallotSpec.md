@@ -1,6 +1,6 @@
 # Ballot Specification
 
-## V2
+## V2 (draft)
 
 ```
 {
@@ -35,7 +35,7 @@
 
 Interface: [sv-light-smart-contracts/svLight/contracts/IndexInterface.sol](https://github.com/secure-vote/sv-light-smart-contracts/svLight/contracts/IndexInterface.sol).
 
-When calling `initDemoc` a new admin contract will be created. 
+When calling `initDemoc` a new admin contract will be created.
 This admin contract is used for creating new ballots, creating community ballots, managing admin features, and paying for the democ on TokenVote.
 `initDemoc` also returns the democHash, which is also emitted in a `DemocAdded` event along with the admin address.
 
