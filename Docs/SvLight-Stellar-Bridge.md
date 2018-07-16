@@ -1,6 +1,6 @@
-# Tokenvote to Stellar bridge - v1.0
+# Tokenvote to Stellar bridge - v1.0.1
 
-This document describes v1.0 of how SecureVote Light (aka tokenvote) can integrate with Stellar chains and enable fee-free voting.
+This document describes v1.0.1 of how SecureVote Light (aka tokenvote) can integrate with Stellar chains and enable fee-free voting.
 As part of this it assumes web integration via a Vue component. (Note: the component can be embedded in non-Vue UIs too, though it's not covered in this doc)
 
 This doc particularly covers the Stellar-relevant parts:
@@ -10,6 +10,13 @@ This doc particularly covers the Stellar-relevant parts:
 * linking ed25519 keys and ETH keys
 
 Also note examples are in Typescript.
+
+## Change Log
+
+### v1.0 -> v1.0.1
+
+* Changed 12 byte header to 8 byte header + nonce to allow delegating to the same Eth address multiple times (otherwise a delegation would only be able to made once)
+* Changed signature request event such that `rawDataToSign` now contains all 32 bytes and the host app should check the header instead of adding it themselves
 
 ## System Schematic
 
@@ -66,12 +73,23 @@ const toEthHex = x => "0x" + toHex(x)
 
 const toUi8a = str => new TextEncoder().encode(str)
 
+// we use an 8 byte header + 4 byte nonce to pad the address
+const SvEd25519SelfDlgtHeader = "Sv_EdEth"
+
 // generate the delegation tuple4
 const genSelfDelegation = (ethAddr: EthHex, stellarSK: Uint8Array, stellarPK: Uint8Array): SelfDelegation => {
+    // we add a nonce so we're able to create unique delegations to the same
+    // address.
+    const nonce = randomBytes(4)
     // note: we need to pad the address with some message to avoid potential
     // malicious signature requests (e.g. on a Stellar transaction).
     // note: this silly convoluted line concatenates two Uint8Arrays
-    const linkData = Uint8Array.of(...toUi8a("SvEd25519Eth"), ...web3.utils.hexToBytes(ethAddr))
+    const linkData = Uint8Array.of(
+            ...toUi8a(SvEd25519SelfDlgtHeader),
+            ...toUi8a(nonce),
+            ...web3.utils.hexToBytes(ethAddr)
+        )
+    assert(linkData.byteLength === 32)
 
     // if using nacl-js: https://github.com/tonyg/js-nacl#signatures-crypto_sign
     // note: signatures are 64b long
@@ -96,7 +114,7 @@ submitSelfDelegation(genSelfDelegation(ethAddr, stellarSK, stellarPK))
     .catch(onFail)
 ```
 
-**Note:** because self-delegation submission can be done by an arbitrary party, in production SecureVote will likely publish self-delegations on behalf of voters via an API.
+**Note:** because self-delegation submission can be done by an arbitrary party, in production SecureVote will likely publish self-delegations on behalf of voters via an API. The above code is just to demonstrate the process.
 
 ## Integration w/ UI
 
@@ -118,18 +136,19 @@ This is still a draft, but the Vue component will be used similarly to:
 
 <script lang="ts">
 // ... other imports and things ...
-import { SvLightVotingUI, Ed25519SelfDlgtHeader } from "sv-vue"
+import { SvLightVotingUI, SvEd25519SelfDlgtHeader } from "sv-vue"
 
 export default {
     // ...snip...
     data: () => ({
-        signResponseMap: {}
+        signResponseMap: {},
     }),
     methods: {
         onSignRequest([signReqId, rawDataToSign]) {
-            // it's important you add the header yourself to ensure no-one can exploit
-            // this event to (for example) sign a malicious transaction
-            this.signResponseMap[signReqId] = sign(Ed25519SelfDlgtHeader + rawDataToSign)
+            // it's important you verify the header yourself to ensure no-one can
+            // exploit this event to (for example) sign a malicious transaction
+            assert(toHex(rawDataToSign.slice(0,8)) === toHex(SvEd25519SelfDlgtHeader))
+            this.signResponseMap[signReqId] = sign(rawDataToSign)
         }
     },
     // ...snip...
