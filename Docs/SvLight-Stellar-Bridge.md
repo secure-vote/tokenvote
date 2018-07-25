@@ -13,6 +13,21 @@ Also note examples are in Typescript.
 
 ## Change Log
 
+### v1.0.1 -> v1.0.2
+
+* Updated the delegation header to `SV-ED-ETH` 
+* Updated props required for the vue component
+
+```
+    :ioAdmin="ioAdmin"
+    :debugMode="true"
+    :stellarPk="stellarPk"
+    :votingSk="votingSk"
+    :democracyDetails="democracyDetails"
+    :signResponse="signResponse"
+@signRequestEvent="onSignRequest"
+```
+
 ### v1.0 -> v1.0.1
 
 * Changed 12 byte header to 8 byte header + nonce to allow delegating to the same Eth address multiple times (otherwise a delegation would only be able to made once)
@@ -74,7 +89,7 @@ const toEthHex = x => "0x" + toHex(x)
 const toUi8a = str => new TextEncoder().encode(str)
 
 // we use an 8 byte header + 4 byte nonce to pad the address
-const SvEd25519SelfDlgtHeader = "Sv_EdEth"
+const SvEd25519SelfDlgtHeader = "SV-ED-ETH"
 
 // generate the delegation tuple4
 const genSelfDelegation = (ethAddr: EthHex, stellarSK: Uint8Array, stellarPK: Uint8Array): SelfDelegation => {
@@ -124,12 +139,13 @@ This is still a draft, but the Vue component will be used similarly to:
 <template>
     <div>
         <SvLightVotingUI
-            :ethSK="ethSK"
-            :stellarPK="stellarPK"
-            :tokenID="tokenID"
-            :signResponses="signResponseMap"
-            signReqEvent="signRequest"
-            @signRequest="onSignRequest"
+            :ioAdmin="ioAdmin"
+            :debugMode="true"
+            :stellarPk="stellarPk"
+            :votingSk="votingSk"
+            :democracyDetails="democracyDetails"
+            :signResponse="signResponse"
+            @signRequestEvent="onSignRequest"
         />
     </div>
 </template>
