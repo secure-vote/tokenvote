@@ -9,7 +9,6 @@
     "ballotTitle": "Title",
     "shortDesc": "short",
     "longDesc": "long",
-    "subgroup": null,
     "discussionLink": null,
     "encryptionPK": null
   },
