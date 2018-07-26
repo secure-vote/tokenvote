@@ -1,6 +1,6 @@
 # Ballot Specification
 
-## V2.1 (draft)
+## V2 rev 2 (draft)
 
 ```
 {
@@ -31,7 +31,7 @@
 
 ## Changelog
 
-### v2 -> v2.1 
+### v2 -> v2 rev 2
 
 - [x] `subgroup` moved to the root of the ballot spec object; note that `ballotInner.subgroup` must be `null` for all v2.x `ballotSpec`s.
 
