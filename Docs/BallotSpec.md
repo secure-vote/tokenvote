@@ -1,6 +1,6 @@
 # Ballot Specification
 
-## V2 (draft)
+## V2.1 (draft)
 
 ```
 {
@@ -17,11 +17,25 @@
   "optionsInner": {
     "options": null,
     "aux": null
+  },
+  "subgroupVersion": 1,
+  "subgroupInner": {
+    "tokenId": "String",
+    "networkId": "Number",
+    "delegationSc": "0x...",
+    "signature": "0x...",
+    "proposer": "0x...",
+    "sigType": "ed25519"
   }
 }
 ```
 
 ## Changelog
+
+### v2 -> v2.1 
+
+- [x] `subgroup` moved to the root of the ballot spec object
+
 
 ### v1 -> v2
 
