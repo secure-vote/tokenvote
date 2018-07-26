@@ -33,8 +33,7 @@
 
 ### v2 -> v2.1 
 
-- [x] `subgroup` moved to the root of the ballot spec object
-
+- [x] `subgroup` moved to the root of the ballot spec object; note that `ballotInner.subgroup` must be `null` for all v2.x `ballotSpec`s.
 
 ### v1 -> v2
 
