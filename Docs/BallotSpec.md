@@ -6,25 +6,26 @@
 {
   "ballotVersion": 2,
   "ballotInner": {
-    "ballotTitle": "Title",
-    "shortDesc": "short",
-    "longDesc": "long",
-    "discussionLink": null,
-    "encryptionPK": null
+    "ballotTitle": String,
+    "shortDesc": String,
+    "longDesc": String,
+    "discussionLink": Maybe String,
+    "encryptionPK": Maybe String,
+    "subgroup": Maybe Never  // deprecated
   },
   "optionsVersion": 3,
   "optionsInner": {
-    "options": null,
-    "aux": null
+    "options": Maybe SimpleOption,
+    "aux": Maybe Never  // reserved for future use
   },
   "subgroupVersion": 1,
   "subgroupInner": {
-    "tokenId": "String",
-    "networkId": "Number",
-    "delegationSc": "0x...",
-    "signature": "0x...",
-    "proposerPK": "0x...",
-    "sigType": "ed25519"
+    "tokenId": String,
+    "networkId": Tuple Number Number,
+    "delegationSc": Address,
+    "signature": Bytes64,
+    "proposerPK": Bytes32,
+    "sigType": SigType // one of "ed25519", ...
   }
 }
 ```
