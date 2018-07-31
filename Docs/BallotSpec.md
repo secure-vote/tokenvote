@@ -23,7 +23,7 @@
     "networkId": "Number",
     "delegationSc": "0x...",
     "signature": "0x...",
-    "proposer": "0x...",
+    "proposerPK": "0x...",
     "sigType": "ed25519"
   }
 }
